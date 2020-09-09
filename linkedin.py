@@ -1,17 +1,16 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-#from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-#from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
+import xlrd
 
 driver = webdriver.Chrome()
-driver.get('https://www.linkedin.com')
 
 
 def login(email, password):
+    driver.get('https://www.linkedin.com')
 
     email_box = driver.find_element_by_id("session_key")
     email_box.send_keys(email)
@@ -74,6 +73,7 @@ class Company:
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, nr_emp_class)))
             nr_emp = driver.find_element_by_class_name(nr_emp_class).text
+            nr_emp = nr_emp.replace(" employees","")
             return nr_emp
         except TimeoutException:
             print("Loading took too much time!")
@@ -91,11 +91,25 @@ class Company:
 
 
 
+
+
+# To open Workbook 
+# wb = xlrd.open_workbook("companies.xlsx") 
+# sheet = wb.sheet_by_index(0) 
+
+#print(sheet.cell_value(0, 1)) 
+
+#ROWS: 3 to 91 in python (4 to 92 excel)
+#COLUMNS: 2 name, 3 website, 4 HQ, 5 state, 6 description, 7 employees, 8 others 
+
+
+#login linkedin
 login("francescofgonzales@gmail.com","gradiente")
+
 google = Company("google")
-print(google.get_description())
-print(google.get_headquarters())
+# print(google.get_description())
+# print(google.get_headquarters())
 print(google.get_nr_employees())
-print(google.get_website())
+# print(google.get_website())
 
 driver.quit()
