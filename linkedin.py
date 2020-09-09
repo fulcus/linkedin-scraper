@@ -7,72 +7,95 @@ from selenium.webdriver.common.keys import Keys
 #from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
 
-
-email_input = "francescofgonzales@gmail.com"
-password_input = "gradiente"
-company_input = "google"
-
 driver = webdriver.Chrome()
 driver.get('https://www.linkedin.com')
 
 
-email_box = driver.find_element_by_id("session_key")
-print("Enter email:")
-#email_input = input()
-email_box.send_keys(email_input)
+def login(email, password):
 
-password_box = driver.find_element_by_id("session_password")
-print("Enter password:")
-#password_input = input()
-password_box.send_keys(password_input + Keys.ENTER)
+    email_box = driver.find_element_by_id("session_key")
+    email_box.send_keys(email)
 
-print("Logged in")
+    password_box = driver.find_element_by_id("session_password")
+    password_box.send_keys(password + Keys.ENTER)
 
-print("Enter company name:")
-#company_input = input()
-driver.get('https://www.linkedin.com/search/results/companies/?keywords=' + company_input)
-
-#click on first result
-driver.find_element_by_css_selector('ul.reusable-search__entity-results-list li:first-child').click()
-
-#click on about
-about_selector = 'ul.org-page-navigation__items li:nth-child(2)'
-try:
-    myElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, about_selector)))
-    driver.find_element_by_css_selector('ul.org-page-navigation__items li:nth-child(2)').click()
-except TimeoutException:
-    print("Loading took too much time!")
-
-#get description
-try:
-    myElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'section p:nth-child(2)')))
-    description = driver.find_element_by_css_selector('section p:nth-child(2)').text
-    print(description)
-except TimeoutException:
-    print("Loading took too much time!")
-
-#get website
-website_xpath = "//dt[text()='Website']/following-sibling::dd"
-try:
-    myElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, website_xpath)))
-    website = driver.find_element_by_xpath(website_xpath).text
-    print(website)
-except TimeoutException:
-    print("Loading took too much time!")
+    print("Logged in")
 
 
-#get nr employees
-nr_emp_class = "org-about-company-module__company-size-definition-text"
-try:
-    myElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, nr_emp_class)))
-    nr_emp = driver.find_element_by_class_name(nr_emp_class).text
-    print(nr_emp)
-except TimeoutException:
-    print("Loading took too much time!")
+class Company:
+
+    name = "default"
+
+    def __init__(self, company_name):
+        self.name = company_name
+        driver.get(
+            'https://www.linkedin.com/search/results/companies/?keywords=' + company_name)
+
+        # click on first result
+        driver.find_element_by_css_selector(
+            'ul.reusable-search__entity-results-list li:first-child').click()
+
+        # click on about
+        about_selector = 'ul.org-page-navigation__items li:nth-child(2)'
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, about_selector)))
+            driver.find_element_by_css_selector(
+                'ul.org-page-navigation__items li:nth-child(2)').click()
+        except TimeoutException:
+            print("Loading took too much time!")
+
+    # get description
+    def get_description(self):
+        try:
+            WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, 'section p:nth-child(2)')))
+            description = driver.find_element_by_css_selector(
+                'section p:nth-child(2)').text
+            return description
+        except TimeoutException:
+            print("Loading took too much time!")
+
+    # get website
+    def get_website(self):
+        website_xpath = "//dt[text()='Website']/following-sibling::dd"
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, website_xpath)))
+            website = driver.find_element_by_xpath(website_xpath).text
+            return website
+        except TimeoutException:
+            print("Loading took too much time!")
+
+    # get nr employees
+    def get_nr_employees(self):
+        nr_emp_class = "org-about-company-module__company-size-definition-text"
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, nr_emp_class)))
+            nr_emp = driver.find_element_by_class_name(nr_emp_class).text
+            return nr_emp
+        except TimeoutException:
+            print("Loading took too much time!")
+
+    # get headquarters
+    def get_headquarters(self):
+        hq_xpath = "//dt[text()='Headquarters']/following-sibling::dd"
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, hq_xpath)))
+            hq = driver.find_element_by_xpath(hq_xpath).text
+            return hq
+        except TimeoutException:
+            print("Loading took too much time!")
 
 
-#find headquarters
-hq = driver.find_element_by_xpath("//dt[text()='Headquarters']/following-sibling::dd").text
-print(hq)
+
+login("francescofgonzales@gmail.com","gradiente")
+google = Company("google")
+print(google.get_description())
+print(google.get_headquarters())
+print(google.get_nr_employees())
+print(google.get_website())
 
 driver.quit()
