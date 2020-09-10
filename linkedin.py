@@ -91,7 +91,7 @@ class Company:
 
 
 # open excel
-rb = xlrd.open_workbook("companies.xlsx", formatting_info=True)
+rb = xlrd.open_workbook("companies.xlsx")
 r_sheet = rb.sheet_by_index(0) # read only copy to introspect the file
 wb = copy(rb) # a writable copy (I can't read values out of this, only write to it)
 w_sheet = wb.get_sheet(0) # the sheet to write to within the writable copy
