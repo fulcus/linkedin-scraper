@@ -10,13 +10,15 @@ from xlutils.copy import copy
 driver = webdriver.Chrome()
 
 
-def login(email, password):
+def login():
     driver.get('https://www.linkedin.com')
 
     email_box = driver.find_element_by_id("session_key")
+    email = input('Enter your email\n')
     email_box.send_keys(email)
 
     password_box = driver.find_element_by_id("session_password")
+    password = input('Enter your password\n')
     password_box.send_keys(password + Keys.ENTER)
 
     print("Logged in")
@@ -97,10 +99,10 @@ wb = copy(rb) # a writable copy (I can't read values out of this, only write to 
 w_sheet = wb.get_sheet(0) # the sheet to write to within the writable copy
 
 # login linkedin
-login("francescofgonzales@gmail.com", "gradiente")
+login()
 
 # ROWS: 3 to 92 (excluded) in python (4 to 92 excel)
-for row in range(3, 5):
+for row in range(3, 92):
 
     # COLUMNS: 2 name, 3 website, 4 HQ, 5 state, 6 description, 7 employees, 8 others
     NAME_COL = 2
@@ -114,10 +116,9 @@ for row in range(3, 5):
     company_name = r_sheet.cell_value(row, NAME_COL)
     try:
         company = Company(company_name)
-    except NoSuchElementException:
-        print("Couldn't find company")
     except: 
-        print("Error searching company")
+        print("Couldn't find company")
+        continue
 
     # write data to sheet
     web = company.get_website()
