@@ -62,7 +62,7 @@ class Company:
             descr = driver.find_element_by_xpath(descr_xpath).text
             return descr
         except TimeoutException:
-            print("Error getting " + self.name + " description")
+            print("Couldn't find " + self.name + " description")
             return None
 
     def get_website(self):
@@ -73,7 +73,7 @@ class Company:
             website = driver.find_element_by_xpath(website_xpath).text
             return website
         except TimeoutException:
-            print("Error getting " + self.name + " website")
+            print("Couldn't find " + self.name + " website")
             return None
 
     def get_nr_employees(self):
@@ -85,7 +85,7 @@ class Company:
             nr_emp = nr_emp.replace(" employees", "")
             return nr_emp
         except TimeoutException:
-            print("Error getting " + self.name + " nr employees")
+            print("Couldn't find " + self.name + " nr employees")
             return None
 
     def get_headquarters(self):
@@ -96,7 +96,7 @@ class Company:
             hq = driver.find_element_by_xpath(hq_xpath).text
             return hq
         except TimeoutException:
-            print("Error getting " + self.name + " headquarters")
+            print("Couldn't find " + self.name + " headquarters")
             return None
 
     def get_industry(self):
@@ -107,7 +107,7 @@ class Company:
             industry = driver.find_element_by_xpath(industry_xpath).text
             return industry
         except TimeoutException:
-            print("Error getting " + self.name + " industry")
+            print("Couldn't find " + self.name + " industry")
             return None
 
     def get_employees_linkedin(self):
@@ -126,7 +126,7 @@ class Company:
             linkedin_emp = linkedin_emp.replace(child, "")
             return linkedin_emp
         except TimeoutException:
-            print("Error getting " + self.name + " nr employees on linkedin")
+            print("Couldn't find " + self.name + " nr employees on linkedin")
             return None
 
     def get_type(self):
@@ -137,7 +137,7 @@ class Company:
             type = driver.find_element_by_xpath(type_xpath).text
             return type
         except TimeoutException:
-            print("Error getting " + self.name + " company type")
+            print("Couldn't find " + self.name + " company type")
             return None
 
     def get_foundation(self):
@@ -148,7 +148,7 @@ class Company:
             founded = driver.find_element_by_xpath(founded_xpath).text
             return founded
         except TimeoutException:
-            print("Error getting " + self.name + " foundation")
+            print("Couldn't find " + self.name + " foundation")
             return None
 
     def get_specialties(self):
@@ -159,7 +159,7 @@ class Company:
             specialties = driver.find_element_by_xpath(specialties_xpath).text
             return specialties
         except TimeoutException:
-            print("Error getting " + self.name + " specialties")
+            print("Couldn't find " + self.name + " specialties")
             return None
 
 # login()
@@ -193,7 +193,7 @@ for row in range(1, 91):
     try:
         company = Company(company_name)
     except:
-        print("Couldn't find company")
+        print("Couldn't find " + company_name)
         continue
 
     # write data to sheet
