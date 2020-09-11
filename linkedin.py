@@ -39,11 +39,17 @@ class Company:
             'ul.reusable-search__entity-results-list li:first-child').click()
 
         # click on about
-        about_selector = 'ul.org-page-navigation__items li:nth-child(2)'
+        # about_selector = 'ul.org-page-navigation__items li:nth-child(2)'
+        # WebDriverWait(driver, 10).until(
+        #     EC.presence_of_element_located((By.CSS_SELECTOR, about_selector)))
+        # driver.find_element_by_css_selector(
+        #     'ul.org-page-navigation__items li:nth-child(2)').click()
+
+        #ul[@class='org-page-navigation__items']/li/
+        about_xpath = "//li[contains(@class, 'org-page-navigation__item')]/a[text()='About']"
         WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, about_selector)))
-        driver.find_element_by_css_selector(
-            'ul.org-page-navigation__items li:nth-child(2)').click()
+                EC.presence_of_element_located((By.XPATH, about_xpath)))
+        driver.find_element_by_xpath(about_xpath).click()
 
 
     def get_description(self):
@@ -121,17 +127,21 @@ for row in range(3, 92):
         continue
 
     # write data to sheet
-    web = company.get_website()
-    w_sheet.write(row, WEB_COL, web)
+    try:
+        web = company.get_website()
+        w_sheet.write(row, WEB_COL, web)
 
-    hq = company.get_headquarters()
-    w_sheet.write(row, HQ_COL, hq)
+        hq = company.get_headquarters()
+        w_sheet.write(row, HQ_COL, hq)
 
-    descr = company.get_description()
-    w_sheet.write(row, DESCR_COL, descr)
+        descr = company.get_description()
+        w_sheet.write(row, DESCR_COL, descr)
 
-    empl = company.get_nr_employees()
-    w_sheet.write(row, EMPL_COL, empl)
+        empl = company.get_nr_employees()
+        w_sheet.write(row, EMPL_COL, empl)
+    except:
+        print("Error fetching company data")
+
 
 file_path = 'w_companies'
 #wb.save(file_path + '.out' + os.path.splitext(file_path)[-1])
