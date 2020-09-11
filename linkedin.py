@@ -7,6 +7,17 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import xlrd
 from xlutils.copy import copy
 
+NAME_COL = 0
+DESCR_COL = 1
+WEB_COL = 2
+INDUSTRY_COL = 3
+EMPL_COL = 4
+EMPL_LINKEDIN_COL = 5
+HQ_COL = 6
+TYPE_COL = 7
+FOUNDED_COL = 8
+SPECIALTIES_COL = 9
+
 driver = webdriver.Chrome()
 
 
@@ -38,29 +49,20 @@ class Company:
         driver.find_element_by_css_selector(
             'ul.reusable-search__entity-results-list li:first-child').click()
 
-        # click on about
-        # about_selector = 'ul.org-page-navigation__items li:nth-child(2)'
-        # WebDriverWait(driver, 10).until(
-        #     EC.presence_of_element_located((By.CSS_SELECTOR, about_selector)))
-        # driver.find_element_by_css_selector(
-        #     'ul.org-page-navigation__items li:nth-child(2)').click()
-
-        #ul[@class='org-page-navigation__items']/li/
         about_xpath = "//li[contains(@class, 'org-page-navigation__item')]/a[text()='About']"
         WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, about_xpath)))
+            EC.presence_of_element_located((By.XPATH, about_xpath)))
         driver.find_element_by_xpath(about_xpath).click()
 
-
     def get_description(self):
+        descr_xpath = "//h4[text()='Overview']/following-sibling::p"
         try:
-            WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, 'section p:nth-child(2)')))
-            description = driver.find_element_by_css_selector(
-                'section p:nth-child(2)').text
-            return description
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, descr_xpath)))
+            descr = driver.find_element_by_xpath(descr_xpath).text
+            return descr
         except TimeoutException:
-            print("Loading took too much time!")
+            print("Error getting " + self.name + " description")
             return None
 
     def get_website(self):
@@ -71,7 +73,7 @@ class Company:
             website = driver.find_element_by_xpath(website_xpath).text
             return website
         except TimeoutException:
-            print("Loading took too much time!")
+            print("Error getting " + self.name + " website")
             return None
 
     def get_nr_employees(self):
@@ -83,7 +85,7 @@ class Company:
             nr_emp = nr_emp.replace(" employees", "")
             return nr_emp
         except TimeoutException:
-            print("Loading took too much time!")
+            print("Error getting " + self.name + " nr employees")
             return None
 
     def get_headquarters(self):
@@ -94,58 +96,121 @@ class Company:
             hq = driver.find_element_by_xpath(hq_xpath).text
             return hq
         except TimeoutException:
-            print("Loading took too much time!")
+            print("Error getting " + self.name + " headquarters")
             return None
+
+    def get_industry(self):
+        industry_xpath = "//dt[text()='Industry']/following-sibling::dd"
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, industry_xpath)))
+            industry = driver.find_element_by_xpath(industry_xpath).text
+            return industry
+        except TimeoutException:
+            print("Error getting " + self.name + " industry")
+            return None
+
+    def get_employees_linkedin(self):
+        linkedin_emp_class = "org-page-details__employees-on-linkedin-count"
+        child_xpath = "//dd[contains(@class, 'org-page-details__employees-on-linkedin-count')]/span"
+        
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, linkedin_emp_class)))
+            linkedin_emp = driver.find_element_by_class_name(
+                linkedin_emp_class).text
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, child_xpath)))
+            child = driver.find_element_by_xpath(child_xpath).text
+            linkedin_emp = linkedin_emp.replace(" on LinkedIn", "")
+            linkedin_emp = linkedin_emp.replace(child, "")
+            return linkedin_emp
+        except TimeoutException:
+            print("Error getting " + self.name + " nr employees on linkedin")
+            return None
+
+    def get_type(self):
+        type_xpath = "//dt[text()='Type']/following-sibling::dd"
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, type_xpath)))
+            type = driver.find_element_by_xpath(type_xpath).text
+            return type
+        except TimeoutException:
+            print("Error getting " + self.name + " company type")
+            return None
+
+    def get_foundation(self):
+        founded_xpath = "//dt[text()='Founded']/following-sibling::dd"
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, founded_xpath)))
+            founded = driver.find_element_by_xpath(founded_xpath).text
+            return founded
+        except TimeoutException:
+            print("Error getting " + self.name + " foundation")
+            return None
+
+    def get_specialties(self):
+        specialties_xpath = "//dt[text()='Specialties']/following-sibling::dd"
+        try:
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, specialties_xpath)))
+            specialties = driver.find_element_by_xpath(specialties_xpath).text
+            return specialties
+        except TimeoutException:
+            print("Error getting " + self.name + " specialties")
+            return None
+
+# login()
+# company = Company("google")
+# print(company.get_description())
+# print(company.get_website())
+# print(company.get_industry())
+# print(company.get_nr_employees())
+# print(company.get_employees_on_linkedin())
+# print(company.get_headquarters())
+# print(company.get_type())
+# print(company.get_foundation())
+# print(company.get_specialties())
 
 
 # open excel
 rb = xlrd.open_workbook("companies.xlsx")
-r_sheet = rb.sheet_by_index(0) # read only copy to introspect the file
-wb = copy(rb) # a writable copy (I can't read values out of this, only write to it)
-w_sheet = wb.get_sheet(0) # the sheet to write to within the writable copy
+r_sheet = rb.sheet_by_index(0)  # read only copy to introspect the file
+# a writable copy (I can't read values out of this, only write to it)
+wb = copy(rb)
+w_sheet = wb.get_sheet(0)  # the sheet to write to within the writable copy
 
 # login linkedin
 login()
 
-# ROWS: 3 to 92 (excluded) in python (4 to 92 excel)
-for row in range(3, 92):
-
-    # COLUMNS: 2 name, 3 website, 4 HQ, 5 state, 6 description, 7 employees, 8 others
-    NAME_COL = 2
-    WEB_COL = 3
-    HQ_COL = 4
-    HQ_COUNTRY_COL = 5
-    DESCR_COL = 6
-    EMPL_COL = 7
+# ROWS: 1 to 91 (excluded) in python (2 to 91 excel)
+for row in range(1, 91):
 
     # get company name
     company_name = r_sheet.cell_value(row, NAME_COL)
     try:
         company = Company(company_name)
-    except: 
+    except:
         print("Couldn't find company")
         continue
 
     # write data to sheet
     try:
-        web = company.get_website()
-        w_sheet.write(row, WEB_COL, web)
-
-        hq = company.get_headquarters()
-        w_sheet.write(row, HQ_COL, hq)
-
-        descr = company.get_description()
-        w_sheet.write(row, DESCR_COL, descr)
-
-        empl = company.get_nr_employees()
-        w_sheet.write(row, EMPL_COL, empl)
+        w_sheet.write(row, DESCR_COL, company.get_description())
+        w_sheet.write(row, WEB_COL, company.get_website())
+        w_sheet.write(row, INDUSTRY_COL, company.get_industry())
+        w_sheet.write(row, EMPL_COL, company.get_nr_employees())
+        w_sheet.write(row, EMPL_LINKEDIN_COL, company.get_employees_linkedin())
+        w_sheet.write(row, HQ_COL, company.get_headquarters())
+        w_sheet.write(row, TYPE_COL, company.get_type())
+        w_sheet.write(row, FOUNDED_COL, company.get_foundation())
+        w_sheet.write(row, SPECIALTIES_COL, company.get_specialties())
     except:
         print("Error fetching company data")
 
-
 file_path = 'w_companies'
-#wb.save(file_path + '.out' + os.path.splitext(file_path)[-1])
 wb.save(file_path + '.xlsx')
-
 
 driver.quit()
