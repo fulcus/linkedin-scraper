@@ -180,7 +180,7 @@ class Company:
 
 
 # open excel
-rb = xlrd.open_workbook("companies.xlsx")
+rb = xlrd.open_workbook("companies2.xlsx")
 r_sheet = rb.sheet_by_index(0)  # read only copy to introspect the file
 # a writable copy (I can't read values out of this, only write to it)
 wb = copy(rb)
@@ -189,8 +189,11 @@ w_sheet = wb.get_sheet(0)  # the sheet to write to within the writable copy
 # login linkedin
 login()
 
+#dictionary with key = row, value = company_name
+not_found_companies = {}
+
 # ROWS: 1 to 91 (excluded) in python (2 to 91 excel)
-for row in range(1, 91):
+for row in range(1, 7):
 
     # get company name
     company_name = r_sheet.cell_value(row, NAME_COL)
@@ -198,6 +201,7 @@ for row in range(1, 91):
         company = Company(company_name)
     except:
         print("Couldn't find " + company_name)
+        not_found_companies[row] = company_name
         continue
 
     # write data to sheet
@@ -214,6 +218,37 @@ for row in range(1, 91):
         w_sheet.write(row, LINKEDIN_COL, company.get_linkedin())
     except:
         print("Error fetching company data")
+
+
+
+for c_row, c_name in not_found_companies.items():
+    cmd = input("You can type an alternative name for " + c_name + " or press s to skip, q to quit\n")
+    if(cmd == 's'):
+        continue
+    elif(cmd == 'q'):
+        break
+    else:
+        try:
+            company = Company(cmd)
+        except:
+            print("Couldn't find " + cmd + " either. Skipping this one")
+            continue
+
+        try:
+            w_sheet.write(c_row, DESCR_COL, company.get_description())
+            w_sheet.write(c_row, WEB_COL, company.get_website())
+            w_sheet.write(c_row, INDUSTRY_COL, company.get_industry())
+            w_sheet.write(c_row, EMPL_COL, company.get_nr_employees())
+            w_sheet.write(c_row, EMPL_LINKEDIN_COL, company.get_employees_linkedin())
+            w_sheet.write(c_row, HQ_COL, company.get_headquarters())
+            w_sheet.write(c_row, TYPE_COL, company.get_type())
+            w_sheet.write(c_row, FOUNDED_COL, company.get_foundation())
+            w_sheet.write(c_row, SPECIALTIES_COL, company.get_specialties())
+            w_sheet.write(c_row, LINKEDIN_COL, company.get_linkedin())
+        except:
+            print("Error fetching company data")
+
+
 
 file_path = 'w_companies'
 wb.save(file_path + '.xlsx')
