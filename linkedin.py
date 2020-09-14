@@ -6,6 +6,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import xlrd
 from xlutils.copy import copy
+import traceback
 
 WAIT_TIME = 5
 
@@ -48,7 +49,7 @@ class Company:
 
         # click on first result
         driver.find_element_by_css_selector(
-            'ul.search-results__list li:first-child a').click()
+            'ul li:first-child div.scale-down a').click()
 
         about_xpath = "//li[contains(@class, 'org-page-navigation__item')]/a[text()='About']"
         WebDriverWait(driver, WAIT_TIME).until(
@@ -152,7 +153,7 @@ class Company:
             founded = driver.find_element_by_xpath(founded_xpath).text
             return founded
         except TimeoutException:
-            print("Couldn't find " + self.name + " foundation")
+            print("Couldn't find " + self.name + " foundation date")
             return None
 
     def get_specialties(self):
@@ -180,7 +181,7 @@ class Company:
 
 
 # open excel
-rb = xlrd.open_workbook("companies2.xlsx")
+rb = xlrd.open_workbook("input.xlsx")
 r_sheet = rb.sheet_by_index(0)  # read only copy to introspect the file
 # a writable copy (I can't read values out of this, only write to it)
 wb = copy(rb)
@@ -193,7 +194,7 @@ login()
 not_found_companies = {}
 
 # ROWS: 1 to 91 (excluded) in python (2 to 91 excel)
-for row in range(1, 7):
+for row in range(1, 91):
 
     # get company name
     company_name = r_sheet.cell_value(row, NAME_COL)
@@ -249,8 +250,6 @@ for c_row, c_name in not_found_companies.items():
             print("Error fetching company data")
 
 
-
-file_path = 'w_companies'
-wb.save(file_path + '.xlsx')
+wb.save('output.xlsx')
 
 driver.quit()
