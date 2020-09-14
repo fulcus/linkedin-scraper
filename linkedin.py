@@ -7,6 +7,8 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import xlrd
 from xlutils.copy import copy
 
+WAIT_TIME = 5
+
 NAME_COL = 0
 DESCR_COL = 1
 WEB_COL = 2
@@ -17,6 +19,7 @@ HQ_COL = 6
 TYPE_COL = 7
 FOUNDED_COL = 8
 SPECIALTIES_COL = 9
+LINKEDIN_COL = 10
 
 driver = webdriver.Chrome()
 
@@ -37,8 +40,6 @@ def login():
 
 class Company:
 
-    name = "default"
-
     def __init__(self, company_name):
         self.name = company_name
 
@@ -47,17 +48,20 @@ class Company:
 
         # click on first result
         driver.find_element_by_css_selector(
-            'ul.reusable-search__entity-results-list li:first-child').click()
+            'ul.search-results__list li:first-child a').click()
 
         about_xpath = "//li[contains(@class, 'org-page-navigation__item')]/a[text()='About']"
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, WAIT_TIME).until(
             EC.presence_of_element_located((By.XPATH, about_xpath)))
         driver.find_element_by_xpath(about_xpath).click()
+
+    def get_linkedin(self):
+        return driver.current_url
 
     def get_description(self):
         descr_xpath = "//h4[text()='Overview']/following-sibling::p"
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, WAIT_TIME).until(
                 EC.presence_of_element_located((By.XPATH, descr_xpath)))
             descr = driver.find_element_by_xpath(descr_xpath).text
             return descr
@@ -68,7 +72,7 @@ class Company:
     def get_website(self):
         website_xpath = "//dt[text()='Website']/following-sibling::dd"
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, WAIT_TIME).until(
                 EC.presence_of_element_located((By.XPATH, website_xpath)))
             website = driver.find_element_by_xpath(website_xpath).text
             return website
@@ -79,7 +83,7 @@ class Company:
     def get_nr_employees(self):
         nr_emp_class = "org-about-company-module__company-size-definition-text"
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, WAIT_TIME).until(
                 EC.presence_of_element_located((By.CLASS_NAME, nr_emp_class)))
             nr_emp = driver.find_element_by_class_name(nr_emp_class).text
             nr_emp = nr_emp.replace(" employees", "")
@@ -91,7 +95,7 @@ class Company:
     def get_headquarters(self):
         hq_xpath = "//dt[text()='Headquarters']/following-sibling::dd"
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, WAIT_TIME).until(
                 EC.presence_of_element_located((By.XPATH, hq_xpath)))
             hq = driver.find_element_by_xpath(hq_xpath).text
             return hq
@@ -102,7 +106,7 @@ class Company:
     def get_industry(self):
         industry_xpath = "//dt[text()='Industry']/following-sibling::dd"
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, WAIT_TIME).until(
                 EC.presence_of_element_located((By.XPATH, industry_xpath)))
             industry = driver.find_element_by_xpath(industry_xpath).text
             return industry
@@ -115,11 +119,11 @@ class Company:
         child_xpath = "//dd[contains(@class, 'org-page-details__employees-on-linkedin-count')]/span"
         
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, WAIT_TIME).until(
                 EC.presence_of_element_located((By.CLASS_NAME, linkedin_emp_class)))
             linkedin_emp = driver.find_element_by_class_name(
                 linkedin_emp_class).text
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, WAIT_TIME).until(
                 EC.presence_of_element_located((By.XPATH, child_xpath)))
             child = driver.find_element_by_xpath(child_xpath).text
             linkedin_emp = linkedin_emp.replace(" on LinkedIn", "")
@@ -132,7 +136,7 @@ class Company:
     def get_type(self):
         type_xpath = "//dt[text()='Type']/following-sibling::dd"
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, WAIT_TIME).until(
                 EC.presence_of_element_located((By.XPATH, type_xpath)))
             type = driver.find_element_by_xpath(type_xpath).text
             return type
@@ -143,7 +147,7 @@ class Company:
     def get_foundation(self):
         founded_xpath = "//dt[text()='Founded']/following-sibling::dd"
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, WAIT_TIME).until(
                 EC.presence_of_element_located((By.XPATH, founded_xpath)))
             founded = driver.find_element_by_xpath(founded_xpath).text
             return founded
@@ -154,7 +158,7 @@ class Company:
     def get_specialties(self):
         specialties_xpath = "//dt[text()='Specialties']/following-sibling::dd"
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, WAIT_TIME).until(
                 EC.presence_of_element_located((By.XPATH, specialties_xpath)))
             specialties = driver.find_element_by_xpath(specialties_xpath).text
             return specialties
@@ -207,6 +211,7 @@ for row in range(1, 91):
         w_sheet.write(row, TYPE_COL, company.get_type())
         w_sheet.write(row, FOUNDED_COL, company.get_foundation())
         w_sheet.write(row, SPECIALTIES_COL, company.get_specialties())
+        w_sheet.write(row, LINKEDIN_COL, company.get_linkedin())
     except:
         print("Error fetching company data")
 
